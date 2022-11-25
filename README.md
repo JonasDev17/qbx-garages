@@ -61,9 +61,9 @@ Almost everything is fully customizable to the last bit!
 
 ![image](https://user-images.githubusercontent.com/25738474/161191275-2ca930fe-5583-4caa-a159-0c239b404abe.png)
 
-![image](https://user-images.githubusercontent.com/25738474/161191330-9270f95d-182f-4709-988a-ef13f0723ba5.png)
+![Screenshot 2022-11-25 113257](https://user-images.githubusercontent.com/55808925/203908136-753bf32b-7e22-4b47-97db-1bfaeba7d866.png)
 
-![image](https://user-images.githubusercontent.com/25738474/161191354-057ca8d9-ee6d-4f92-8dd7-657d3bf26274.png)
+![Screenshot 2022-11-25 113327](https://user-images.githubusercontent.com/55808925/203908148-da80e32a-707c-4a17-b45e-e4099136e877.png)
 
 ## Config Example
 

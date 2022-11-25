@@ -1,8 +1,8 @@
-# qb-garages
+# qbox-garages
 
+**THIS SCRIPT IS CONVERTED TO USE OX_LIB FEATURES TO USE WITH QBOX-PROJECT/QB-GARAGES**
 
-
-**ATENTION: THIS SCRIPT USES THE LATEST VERSION OF THE [RADIALMENU](https://github.com/qbcore-framework/qb-radialmenu) AND [QB-CORE](https://github.com/qbcore-framework/qb-core)**
+**ATENTION: THIS SCRIPT USES THE LATEST VERSION OF QBOX Project  [RADIALMENU](https://github.com/Qbox-project/qb-radialmenu) AND [QB-CORE](https://github.com/Qbox-project/qb-core)**
 
 This is a qb-garages script that uses the radialmenu to retrieve and park vehicles.
 Almost everything is fully customizable to the last bit!
@@ -10,15 +10,30 @@ Almost everything is fully customizable to the last bit!
 **For screenshots scroll down**
 
 ## Dependencies
- - [qb-radialmenu](https://github.com/qbcore-framework/qb-radialmenu)
- - [qb-core](https://github.com/qbcore-framework/qb-core)
+ - [qb-radialmenu](https://github.com/Qbox-project/qb-radialmenu)
+ - [qb-core](https://github.com/Qbox-project/qb-core)
+ - [ox_lib](https://github.com/overextended/ox_lib)
 
 ## Installation
-
-Drag 'n Drop replace for qb-garages.
-
-- Delete qb-garages.
+- Delete default qb-garages form [qb] folder.
 - Drag the downloaded qb-garages folder into the [qb] folder.
+- Insert the SQL Table Shown Below
+
+* RUN This ONLY WHEN USING StoreParkinglotAccuratly 
+    ```
+        ALTER TABLE `player_vehicles` ADD COLUMN `parkingspot` VARCHAR(200) NULL DEFAULT NULL AFTER `garage`;
+    ```
+
+* RUN This ONLY WHEN USING StoreDamageAccuratly
+    ```
+        ALTER TABLE `player_vehicles` ADD COLUMN `damage` VARCHAR(1500) NULL DEFAULT NULL AFTER `garage`;
+    ```
+
+* RUN This ONLY WHEN USING Both StoreParkinglotAccuratly & StoreDamageAccuratly
+    ```
+    ALTER TABLE `player_vehicles`ADD COLUMN `parkingspot` VARCHAR(150) NULL DEFAULT NULL AFTER `garage`,
+    ADD COLUMN `damage` VARCHAR(1500) NULL DEFAULT NULL AFTER `parkingspot`;
+    ```
 
 ## Features
 
@@ -32,15 +47,23 @@ Drag 'n Drop replace for qb-garages.
 * Water Garages
 * Aircraft Garages
 
+## TODO
+
+* USE of  ``ox_lib`` zone rather using default polyzone
+* ox_target support
+* Fix Window damage when spawning vehicle
+* Preview Vehicle before spawn
+* Tidy up code
+
 ## Screenshots
 
 ![image](https://user-images.githubusercontent.com/25738474/161191185-5bfa6805-1e89-44ef-902a-11f60ed68ea8.png)
 
 ![image](https://user-images.githubusercontent.com/25738474/161191275-2ca930fe-5583-4caa-a159-0c239b404abe.png)
 
-![image](https://user-images.githubusercontent.com/25738474/161191330-9270f95d-182f-4709-988a-ef13f0723ba5.png)
+![Screenshot 2022-11-25 113257](https://user-images.githubusercontent.com/55808925/203908136-753bf32b-7e22-4b47-97db-1bfaeba7d866.png)
 
-![image](https://user-images.githubusercontent.com/25738474/161191354-057ca8d9-ee6d-4f92-8dd7-657d3bf26274.png)
+![Screenshot 2022-11-25 113327](https://user-images.githubusercontent.com/55808925/203908148-da80e32a-707c-4a17-b45e-e4099136e877.png)
 
 ## Config Example
 
@@ -159,8 +182,8 @@ end)
 * [ARSSANTO](https://github.com/ARSSANTO) - For making code style suggestions and helping me improve the performance.
 * [JustLazzy](https://github.com/JustLazzy) - I used part of his qb-garages script.
 * [bamablood94](https://github.com/bamablood94) - I used part of his qb-garages script.
-* [QBCore Devs](https://github.com/qbcore-framework/) - For making an awesome framework and enabling me to do this.
-* QBCore Community - Thank you so much for everyone who's been testing this!
+* [Qbox Devs](https://github.com/Qbox-project) - For making an awesome framework and enabling me to do this.
+* Qbox Community - Thank you so much for everyone who's been testing this!
 
 ## Support
 

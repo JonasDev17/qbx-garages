@@ -20,14 +20,20 @@ Almost everything is fully customizable to the last bit!
 - Insert the SQL Table Shown Below
 
 * RUN This ONLY WHEN USING StoreParkinglotAccuratly 
-    ```ALTER TABLE `player_vehicles` ADD COLUMN `parkingspot` VARCHAR(200) NULL DEFAULT NULL AFTER `garage`;```
+    ```
+        ALTER TABLE `player_vehicles` ADD COLUMN `parkingspot` VARCHAR(200) NULL DEFAULT NULL AFTER `garage`;
+    ```
 
 * RUN This ONLY WHEN USING StoreDamageAccuratly
-    ```ALTER TABLE `player_vehicles` ADD COLUMN `damage` VARCHAR(1500) NULL DEFAULT NULL AFTER `garage`;```
+    ```
+        ALTER TABLE `player_vehicles` ADD COLUMN `damage` VARCHAR(1500) NULL DEFAULT NULL AFTER `garage`;
+    ```
 
 * RUN This ONLY WHEN USING Both StoreParkinglotAccuratly & StoreDamageAccuratly
-    ```ALTER TABLE `player_vehicles`ADD COLUMN `parkingspot` VARCHAR(150) NULL DEFAULT NULL AFTER `garage`,
-    ADD COLUMN `damage` VARCHAR(1500) NULL DEFAULT NULL AFTER `parkingspot`;```
+    ```
+    ALTER TABLE `player_vehicles`ADD COLUMN `parkingspot` VARCHAR(150) NULL DEFAULT NULL AFTER `garage`,
+    ADD COLUMN `damage` VARCHAR(1500) NULL DEFAULT NULL AFTER `parkingspot`;
+    ```
 
 ## Features
 

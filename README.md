@@ -12,7 +12,7 @@ Almost everything is fully customizable to the last bit!
 ## Dependencies
  - [qb-radialmenu](https://github.com/Qbox-project/qb-radialmenu)
  - [qb-core](https://github.com/Qbox-project/qb-core)
- - [ox_lib] (https://github.com/overextended/ox_lib)
+ - [ox_lib](https://github.com/overextended/ox_lib)
 
 ## Installation
 - Delete default qb-garages form [qb] folder.

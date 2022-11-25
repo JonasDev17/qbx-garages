@@ -1,8 +1,8 @@
-# qb-garages
+# qbox-garages
 
+**THIS SCRIPT IS CONVERTED TO USE OX_LIB FEATURES TO USE WITH QBOX-PROJECT/QB-GARAGES**
 
-
-**ATENTION: THIS SCRIPT USES THE LATEST VERSION OF THE [RADIALMENU](https://github.com/qbcore-framework/qb-radialmenu) AND [QB-CORE](https://github.com/qbcore-framework/qb-core)**
+**ATENTION: THIS SCRIPT USES THE LATEST VERSION OF QBOX Project  [RADIALMENU](https://github.com/Qbox-project/qb-radialmenu) AND [QB-CORE](https://github.com/Qbox-project/qb-core)**
 
 This is a qb-garages script that uses the radialmenu to retrieve and park vehicles.
 Almost everything is fully customizable to the last bit!
@@ -10,15 +10,24 @@ Almost everything is fully customizable to the last bit!
 **For screenshots scroll down**
 
 ## Dependencies
- - [qb-radialmenu](https://github.com/qbcore-framework/qb-radialmenu)
- - [qb-core](https://github.com/qbcore-framework/qb-core)
+ - [qb-radialmenu](https://github.com/Qbox-project/qb-radialmenu)
+ - [qb-core](https://github.com/Qbox-project/qb-core)
+ - [ox_lib] (https://github.com/overextended/ox_lib)
 
 ## Installation
-
-Drag 'n Drop replace for qb-garages.
-
-- Delete qb-garages.
+- Delete default qb-garages form [qb] folder.
 - Drag the downloaded qb-garages folder into the [qb] folder.
+- Insert the SQL Table Shown Below
+
+* RUN This ONLY WHEN USING StoreParkinglotAccuratly 
+    ```ALTER TABLE `player_vehicles` ADD COLUMN `parkingspot` VARCHAR(200) NULL DEFAULT NULL AFTER `garage`;```
+
+* RUN This ONLY WHEN USING StoreDamageAccuratly
+    ```ALTER TABLE `player_vehicles` ADD COLUMN `damage` VARCHAR(1500) NULL DEFAULT NULL AFTER `garage`;```
+
+* RUN This ONLY WHEN USING Both StoreParkinglotAccuratly & StoreDamageAccuratly
+    ```ALTER TABLE `player_vehicles`ADD COLUMN `parkingspot` VARCHAR(150) NULL DEFAULT NULL AFTER `garage`,
+    ADD COLUMN `damage` VARCHAR(1500) NULL DEFAULT NULL AFTER `parkingspot`;```
 
 ## Features
 
@@ -31,6 +40,14 @@ Drag 'n Drop replace for qb-garages.
 * Custom DrawText
 * Water Garages
 * Aircraft Garages
+
+## TODO
+
+* USE of  ``ox_lib`` zone rather using default polyzone
+* ox_target support
+* Fix Window damage when spawning vehicle
+* Preview Vehicle before spawn
+* Tidy up code
 
 ## Screenshots
 

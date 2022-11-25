@@ -182,8 +182,8 @@ end)
 * [ARSSANTO](https://github.com/ARSSANTO) - For making code style suggestions and helping me improve the performance.
 * [JustLazzy](https://github.com/JustLazzy) - I used part of his qb-garages script.
 * [bamablood94](https://github.com/bamablood94) - I used part of his qb-garages script.
-* [QBCore Devs](https://github.com/qbcore-framework/) - For making an awesome framework and enabling me to do this.
-* QBCore Community - Thank you so much for everyone who's been testing this!
+* [Qbox Devs](https://github.com/Qbox-project) - For making an awesome framework and enabling me to do this.
+* Qbox Community - Thank you so much for everyone who's been testing this!
 
 ## Support
 

@@ -1,13 +1,9 @@
+Config = Config or {}
 --[[
-
     Author: JDev17#8160
-
     TRANSLATION:
         To create a new translation file, copy an existing one and rename it to e.g. es (spanish), then translate it and change the imported file in the fxmanifest under shared_scripts.
-
-    
     GARAGE CONFIGURATION EXAMPLE:
-
     ['somegarage'] = {
         ['Zone'] = {
             ['Shape'] = { -- Create a polyzone by using '/pzcreate poly', '/pzadd' and '/pzfinish' or '/pzcancel' to cancel it. the newly created polyzone will be in txData/QBCoreFramework_******.base/polyzone_created_zones.txt
@@ -57,30 +53,45 @@
         }
     },
 ]]
+
+-- NEW ---
+Config.SharedHouseGarage = true -- Allow shared house garages, if false, the player can only access their own vehicles
+-- NEW ---
+
+-- NEW ---
+Config.AllowParkingAnyonesVehicle = false -- Allow anyones vehicle to be stored in the garage, if false, only vehicles you own can be stored in the garage (supports only public garages)
+Config.AllowParkingFromOutsideVehicle = true -- Allow parking from outside the vehicle, if false, you have to be inside the vehicle to park it
+Config.VehicleParkDistance = 2.0 -- Distance from the player to the vehicle to park it, radial option will dissapear beyond this distance
+-- NEW --
+
 -- NEW
-SpawnVehicleServerside = true -- REQUIRES THE ABSOLUTE LATEST VERSION OF QBCORE, OR MAKE SURE YOU HAVE THESE: https://github.com/qbcore-framework/qb-core/blob/81ffd872319d2eb8e496c3b3faaf37e791912c84/server/events.lua#L252
+Config.GlobalParking = false -- if true, you can access your cars from any garage, if false, you can only access your cars from the garage you stored them in
+-- NEW
+
+-- NEW
+Config.SpawnVehiclesServerside = true -- REQUIRES THE ABSOLUTE LATEST VERSION OF QBCORE, OR MAKE SURE YOU HAVE THESE: https://github.com/qbcore-framework/qb-core/blob/81ffd872319d2eb8e496c3b3faaf37e791912c84/server/events.lua#L252
 -- NEW 
 
--- NEW --
-SpawnAtFreeParkingSpot = true
+-- NEW -- Only relevant if AllowSpawningFromAnywhere = false
+Config.SpawnAtFreeParkingSpot = true -- Will spawn at the closest free parking spot if you walk up to a occupied parking spot (basically you have to walk up close to a parking lot but it does not matter if there is a vehicle blocking the spawn as it will spawn at the closest free parking spot)
 -- NEW --
 
-StoreDamageAccuratly = true -- Do not use, if on latest qb-core, if set to true, make sure to apply / run patch1.sql
-StoreParkinglotAccuratly = true  -- store the last parking lot in the DB, if set to true, make sure to apply / run patch1.sql, I recommend applying the tracking snippet for qb-phone from the ReadMe to the phone so you can track the vehicle to the exact parking lot
-SpawnAtLastParkinglot = true -- spawn the vehicle at hte last parked location if StoreParkinglotAccuratly = true, if set to true, make sure to apply / run patch1.sql, I recommend applying the tracking snippet from the ReadMe to the phone so you can track the vehicle to the exact parking lot
-GarageNameAsBlipName = false -- if set to true, the blips name will match the garage name
-FuelScript = 'LegacyFuel' -- change to lj-fuel / ps-fuel if you use lj-fuel / ps-fuel or something else if you use any other LegcyFuel compatible script
-AllowSpawningFromAnywhere = true -- if set to true, the car can be spawned from anywhere inside the zone on the closest parking lot, if set to false you will have to walk up to a parking lot 
-AutoRespawn = false --True == auto respawn cars that are outside into your garage on script restart, false == does not put them into your garage and players have to go to the impound
-WarpPlayerIntoVehicle = false -- True == Will Warp Player Into their vehicle after pulling it out of garage. False It will spawn on the parking lot / in front of them  (Global, can be overriden by each garage)
-HouseParkingDrawText = 'House Parking' -- text when driving on to the HOUSE parking lot
-ParkingDistance = 2.0 -- Distance to the parking lot when trying to park the vehicle  (Global, can be overriden by each garage)
-SpawnDistance = 4.5 -- The maximum distance you can be from a parking spot, to spawn a car (Global, can be overriden by each garage)
-DepotPrice = 60.0 -- The price to take out a despawned vehicle from impound.
-DrawTextPosition = 'left-center' -- 'right-center' or 'left-center' or 'top-center'
+Config.StoreDamageAccuratly = false -- Do not use, if on latest qb-core, if set to true, make sure to apply / run patch1.sql
+Config.StoreParkinglotAccuratly = false  -- store the last parking lot in the DB, if set to true, make sure to apply / run patch1.sql, I recommend applying the tracking snippet for qb-phone from the ReadMe to the phone so you can track the vehicle to the exact parking lot
+Config.SpawnAtLastParkinglot = false -- spawn the vehicle at the last parked location if StoreParkinglotAccuratly = true, if set to true, make sure to apply / run patch1.sql, I recommend applying the tracking snippet from the ReadMe to the phone so you can track the vehicle to the exact parking lot
+Config.GarageNameAsBlipName = true -- if set to true, the blips name will match the garage name
+Config.FuelScript = 'LegacyFuel' -- change to lj-fuel / ps-fuel if you use lj-fuel / ps-fuel or something else if you use any other LegcyFuel compatible script
+Config.AllowSpawningFromAnywhere = false -- if set to true, the car can be spawned from anywhere inside the zone on the closest parking lot, if set to false you will have to walk up to a parking lot 
+Config.AutoRespawn = true --True == auto respawn cars that are outside into your garage on script restart, false == does not put them into your garage and players have to go to the impound
+Config.WarpPlayerIntoVehicle = false -- True == Will Warp Player Into their vehicle after pulling it out of garage. False It will spawn on the parking lot / in front of them  (Global, can be overriden by each garage)
+Config.HouseParkingDrawText = 'Parking' -- text when driving on to the HOUSE parking lot
+Config.ParkingDistance = 2.0 -- Distance to the parking lot when trying to park the vehicle  (Global, can be overriden by each garage)
+Config.SpawnDistance = 4.5 -- The maximum distance you can be from a parking spot, to spawn a car (Global, can be overriden by each garage)
+Config.DepotPrice = 60.0 -- The price to take out a despawned vehicle from impound.
+Config.DrawTextPosition = 'left' -- location of drawtext: left, top, right
 
 -- set useVehicleSpawner = true for each garage that has type job and should use the vehicle spawner instead of personal vehicles
-JobVehicles = {
+Config.JobVehicles = {
 	['pd1'] = { -- jobGarageIdentifier
         label = "Police Vehicles",
         job = 'police',
@@ -147,12 +158,12 @@ JobVehicles = {
 
 -- '/restorelostcars <destination_garage>' allows you to restore cars that have been parked in garages which no longer exist in the config (garage renamed or removed). The restored cars get sent to the destination garage or if left empty to a random garage in the list.
 -- NOTE: This may also send helis and boats to said garaga so choose wisely
-RestoreCommandPermissionLevel = 'god' -- sets the permission level for the above mentioned command
+Config.RestoreCommandPermissionLevel = 'god' -- sets the permission level for the above mentioned command
 
 -- THESE VEHICLE CATEGORIES ARE NOT RELATED TO THE ONES IN shared/vehicles.lua
 -- Here you can define which category contains which vehicle class. These categories can then be used in the garage config
 -- All vehicle classes can be found here: https://docs.fivem.net/natives/?_0x29439776AAA00A62
-VehicleCategories = {
+Config.VehicleCategories = {
     ['car'] = { 0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12 },
     ['motorcycle'] = { 8 },
     ['other'] = { 13 }, -- cycles: 13 - you can move cycles to cars if you want and have anything else like military vehicles in this category
@@ -166,10 +177,10 @@ VehicleCategories = {
     -- you can also create new / delete or update categories, and use them below in the config.
 }
 
-HouseGarageCategories = {'car', 'motorcycle', 'other'} -- Which categories are allowed to be parked at a house garage
+Config.HouseGarageCategories = {'car', 'motorcycle', 'other'} -- Which categories are allowed to be parked at a house garage
 
 
-VehicleHeading = 'driverside' -- only used when NO parking spots are defined in the garage config
+Config.VehicleHeading = 'hood' -- only used when NO parking spots are defined in the garage config
 --[[^^^^^^^^
     'forward' = will face the sameway as the ped
     'driverside' = will put the driver door closets to the ped
@@ -177,11 +188,11 @@ VehicleHeading = 'driverside' -- only used when NO parking spots are defined in 
     'passengerside' = will put the passenger door closets to the ped
 ]]
 
-SharedJobGarages = { -- define the job garages which are shared
+Config.SharedJobGarages = { -- define the job garages which are shared
     --'pdgarage',
 }
 
-Garages = {
+Config.Garages = {
     --[[
         types:
         - public
@@ -809,7 +820,7 @@ Garages = {
             vector4(-275.18, -768.22, 33.54, 71.26)
         }
     },
-    ['northrockford'] = {
+    ['spanishave'] = {
         ['Zone'] = {
             ['Shape'] = { --polygon that surrounds the parking area
                 vector2(-1135.1311035156, -778.41644287109),
@@ -820,7 +831,7 @@ Garages = {
             ['minZ'] = 17.69,  -- min height of the parking zone
             ['maxZ'] = 20.61,  -- max height of the parking zone
         },
-        label = "North Rockford Parking",
+        label = "Spanish Ave Parking",
         showBlip = true,
         blipcoords = vector3(-1160.86, -741.41, 19.63),
         blipName = "Public Parking",
@@ -828,25 +839,9 @@ Garages = {
         type = 'public',                --public, job, gang, depot
         vehicleCategories = {'car', 'motorcycle', 'other'},
         drawText = 'Parking',                 --car, air, sea
-        debug = false,
-        ['ParkingSpots'] = {
-            vector4(-1144.92, -745.32, 19.69, 105.6),
-            vector4(-1143.46, -748.47, 19.51, 111.41),
-            vector4(-1140.84, -751.4, 19.37, 112.09),
-            vector4(-1138.4, -754.54, 19.21, 112.51),
-            vector4(-1135.45, -757.27, 19.08, 109.69),
-            vector4(-1133.38, -760.28, 18.91, 112.11),
-            vector4(-1130.78, -763.25, 18.76, 111.18),
-            vector4(-1128.38, -758.73, 19.13, 286.83),
-            vector4(-1130.16, -755.67, 19.29, 291.44),
-            vector4(-1132.5, -752.58, 19.45, 289.94),
-            vector4(-1135.36, -749.6, 19.59, 287.4),
-            vector4(-1137.97, -746.77, 19.71, 287.88),
-            vector4(-1140.21, -743.83, 19.85, 289.91),
-            vector4(-1142.87, -740.91, 20.01, 289.42),
-        }
+        debug = false
     },
-    ['spanishave'] = {
+    ['caears24'] = {
         ['Zone'] = {
             ['Shape'] = { --polygon that surrounds the parking area
                 vector2(76.188446044922, 7.9120540618896),
@@ -859,7 +854,7 @@ Garages = {
             ['minZ'] = 68.00,  -- min height of the parking zone
             ['maxZ'] = 70.45,  -- max height of the parking zone
         },
-        label = "Spanish Ave Parking",
+        label = "Caesar 24h Parking",
         showBlip = true,
         blipcoords = vector3(69.84, 12.6, 68.96),
         blipName = "Public Parking",
@@ -1616,7 +1611,8 @@ Garages = {
         label = 'MRPD Garage',
         type = 'job',
         job = "police",
-        --useVehicleSpawner = true,
+        --useVehicleSpawner = false,
+        --jobGarageIdentifier = 'pd1',
         vehicleCategories = {'emergency'},
         drawText = 'Parking',
         ["ParkingSpots"] = {
@@ -1819,6 +1815,7 @@ Garages = {
     },
 }
 
+Config.HouseGarages = {} -- DO NOT TOUCH!
 
-
-HouseGarages = {} -- DO NOT TOUCH!
+Garages = Config.Garages
+HouseGarages = Config.HouseGarages

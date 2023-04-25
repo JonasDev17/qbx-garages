@@ -94,13 +94,14 @@ end
 function RemoveRadialOptions()
     if MenuItemId1 ~= nil then
         exports['qbx-radialmenu']:RemoveOption(MenuItemId1)
-        UpdateVehicleSpawnerSpawnedVehicle(veh, garage, heading, cb)  MenuItemId1 = nil
+        MenuItemId1 = nil
     end
     if MenuItemId2 ~= nil then
         exports['qbx-radialmenu']:RemoveOption(MenuItemId2)
         MenuItemId2 = nil
     end
 end
+
 --Menus
 local function PublicGarage(garageName, type)
     local garage = Config.Garages[garageName]

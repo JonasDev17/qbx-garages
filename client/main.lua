@@ -356,7 +356,7 @@ end
 
 local function AddRadialParkingOption()
     local veh, dist =  QBCore.Functions.GetClosestVehicle()
-    if (veh and dist <= Config.VehicleParkDistance and Config.AllowParkingFromOutsideVehicle) or IsPedInAnyVehicle(cache.ped) then
+    if (veh and dist <= Config.VehicleParkDistance and Config.AllowParkingFromOutsideVehicle) or IsPedInAnyVehicle(cache.ped, false) then
         MenuItemId1 = exports['qbx-radialmenu']:AddOption({
             id = 'put_up_vehicle',
             title = 'Park Vehicle',
@@ -366,14 +366,16 @@ local function AddRadialParkingOption()
             shouldClose = true
         }, MenuItemId1)
     end
-    MenuItemId2 = exports['qbx-radialmenu']:AddOption({
-        id = 'open_garage_menu',
+    if not IsPedInAnyVehicle(cache.ped, false) then
+        MenuItemId2 = exports['qbx-radialmenu']:AddOption({
+            id = 'open_garage_menu',
         title = 'Open Garage',
-        icon = 'warehouse',
-        type = 'client',
-        event = 'qb-garages:client:OpenMenu',
-        shouldClose = true
-    }, MenuItemId2)
+            icon = 'warehouse',
+            type = 'client',
+            event = 'qb-garages:client:OpenMenu',
+            shouldClose = true
+        }, MenuItemId2)
+    end
 end
 
 local function AddRadialImpoundOption()

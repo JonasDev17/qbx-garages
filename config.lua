@@ -55,16 +55,33 @@ Config = Config or {}
 ]]
 
 -- NEW ---
-Config.SharedHouseGarage = true -- Allow shared house garages, if false, the player can only access their own vehicles
+-- There is a new clientside export called 'TrackVehicleByPlate' that can be used to track vehicles by plate, this is useful for other scripts that want to track vehicles by plate (e.g. exports['qb-garages']:TrackVehicleByPlate(plate))
+-- And the clientside event 'qb-garages:client:TrackVehicleByPlate'(e.g. TriggerEvent('qb-garages:client:TrackVehicleByPlate', plate))
+
+Config.TrackVehicleByPlateCommand = true -- Allow players to track their vehicles by plate using /trackvehicle <plate>
+Config.TrackVehicleByPlateCommandPermissionLevel = 'god' -- Permission level required to use /trackvehicle <plate>, false for anyone / everyone
+
+-- NEW --
+
+
+
+-- NEW --
+Config.SharedGangGarages = false -- Allow shared gang garages, if false, the player can only access their own vehicles
+-- for specific gangs, use this:
+-- Config.SharedGangGarages = {
+--     ['vagos'] = true, -- Allow shared gang garages, if false, the player can only access their own vehicles
+--     ['gsf'] = true, -- Allow shared gang garages, if false, the player can only access their own vehicles
+-- }
 -- NEW ---
+
+Config.SharedHouseGarage = true -- Allow shared house garages, if false, the player can only access their own vehicles
 
 -- NEW ---
 Config.AllowParkingAnyonesVehicle = false -- Allow anyones vehicle to be stored in the garage, if false, only vehicles you own can be stored in the garage (supports only public garages)
 Config.AllowParkingFromOutsideVehicle = true -- Allow parking from outside the vehicle, if false, you have to be inside the vehicle to park it
 Config.VehicleParkDistance = 2.0 -- Distance from the player to the vehicle to park it, radial option will dissapear beyond this distance
--- NEW --
+-- NEW -
 
--- NEW
 Config.GlobalParking = false -- if true, you can access your cars from any garage, if false, you can only access your cars from the garage you stored them in
 -- NEW
 
@@ -73,15 +90,17 @@ Config.SpawnVehiclesServerside = true -- REQUIRES THE ABSOLUTE LATEST VERSION OF
 -- NEW 
 
 -- NEW -- Only relevant if AllowSpawningFromAnywhere = false
-Config.SpawnAtFreeParkingSpot = true -- Will spawn at the closest free parking spot if you walk up to a occupied parking spot (basically you have to walk up close to a parking lot but it does not matter if there is a vehicle blocking the spawn as it will spawn at the closest free parking spot)
--- NEW --
+Config.SpawnAtFreeParkingSpot = false -- Will spawn at the closest free parking spot if you walk up to a occupied parking spot (basically you have to walk up close to a parking lot but it does not matter if there is a vehicle blocking the spawn as it will spawn at the closest free parking spot)
 
+-- DEPRECATED - will be removed in the future
 Config.StoreDamageAccuratly = false -- Do not use, if on latest qb-core, if set to true, make sure to apply / run patch1.sql
+-- DEPRECATED - will be removed in the future
+
 Config.StoreParkinglotAccuratly = false  -- store the last parking lot in the DB, if set to true, make sure to apply / run patch1.sql, I recommend applying the tracking snippet for qb-phone from the ReadMe to the phone so you can track the vehicle to the exact parking lot
-Config.SpawnAtLastParkinglot = false -- spawn the vehicle at the last parked location if StoreParkinglotAccuratly = true, if set to true, make sure to apply / run patch1.sql, I recommend applying the tracking snippet from the ReadMe to the phone so you can track the vehicle to the exact parking lot
+Config.SpawnAtLastParkinglot = false -- spawn the vehicle at the last parked location if StoreParkinglotAccuratly = true, if set to true, make sure to apply / run patch1.sql
 Config.GarageNameAsBlipName = true -- if set to true, the blips name will match the garage name
 Config.FuelScript = 'LegacyFuel' -- change to lj-fuel / ps-fuel if you use lj-fuel / ps-fuel or something else if you use any other LegcyFuel compatible script
-Config.AllowSpawningFromAnywhere = false -- if set to true, the car can be spawned from anywhere inside the zone on the closest parking lot, if set to false you will have to walk up to a parking lot 
+Config.AllowSpawningFromAnywhere = true -- if set to true, the car can be spawned from anywhere inside the zone on the closest parking lot, if set to false you will have to walk up to a parking lot 
 Config.AutoRespawn = true --True == auto respawn cars that are outside into your garage on script restart, false == does not put them into your garage and players have to go to the impound
 Config.WarpPlayerIntoVehicle = false -- True == Will Warp Player Into their vehicle after pulling it out of garage. False It will spawn on the parking lot / in front of them  (Global, can be overriden by each garage)
 Config.HouseParkingDrawText = 'Parking' -- text when driving on to the HOUSE parking lot
@@ -89,6 +108,7 @@ Config.ParkingDistance = 2.0 -- Distance to the parking lot when trying to park 
 Config.SpawnDistance = 4.5 -- The maximum distance you can be from a parking spot, to spawn a car (Global, can be overriden by each garage)
 Config.DepotPrice = 60.0 -- The price to take out a despawned vehicle from impound.
 Config.DrawTextPosition = 'left' -- location of drawtext: left, top, right
+
 
 -- set useVehicleSpawner = true for each garage that has type job and should use the vehicle spawner instead of personal vehicles
 Config.JobVehicles = {

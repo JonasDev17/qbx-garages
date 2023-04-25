@@ -917,7 +917,7 @@ CreateThread(function()
                 onEnter = function()
                     if IsAuthorizedToAccessGarage(garageName) then
                         UpdateRadialMenu(garageName)
-                        exports['qb-core']:DrawText(Garages[CurrentGarage]['drawText'], DrawTextPosition)
+                        exports['qbx-core']:DrawText(Garages[CurrentGarage]['drawText'], DrawTextPosition)
                     end
                 end,
                 inside = function (self)
@@ -934,7 +934,7 @@ CreateThread(function()
                         exports['qbx-radialmenu']:RemoveOption(MenuItemId)
                         MenuItemId = nil
                     end
-                    exports['qb-core']:HideText()
+                    exports['qbx-core']:HideText()
                 end
             })
         end

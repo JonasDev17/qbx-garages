@@ -102,6 +102,10 @@ function RemoveRadialOptions()
     end
 end
 
+local function SetCurrentGarage()
+    CurrentGarage = nil
+end
+
 --Menus
 local function PublicGarage(garageName, type)
     local garage = Config.Garages[garageName]
@@ -249,14 +253,14 @@ local function IsAuthorizedToAccessGarage(garageName)
     if not garage then return false end
     if garage.type == 'job' then
         if type(garage.job) == "string" and not IsStringNilOrEmpty(garage.job) then
-            return PlayerJob.name == garage.job 
+            return PlayerJob.name == garage.job
         elseif type(garage.job) == "table" then
             return TableContains(garage.job, PlayerJob.name)
         else
             QBCore.Functions.Notify('job not defined on garage', 'error', 7500)
             return false
         end
-    elseif garage.type == 'gang' then 
+    elseif garage.type == 'gang' then
         if type(garage.gang) == "string" and  not IsStringNilOrEmpty(garage.gang) then
             return garage.gang == PlayerGang.name
         elseif type(garage.gang) =="table" then
@@ -384,7 +388,8 @@ local function AddRadialImpoundOption()
     }, MenuItemId1)
 end
 
-local function UpdateRadialMenu()
+local function UpdateRadialMenu(garagename)
+    CurrentGarage = garagename or CurrentGarage or nil
     local garage = Config.Garages[CurrentGarage]
     if CurrentGarage ~= nil and garage ~= nil then
         if garage.type == 'job' and not IsStringNilOrEmpty(garage.job) then
@@ -405,30 +410,6 @@ local function UpdateRadialMenu()
     else
         RemoveRadialOptions()
     end
-end
-
-local function CreateGarageZone()
-    local combo = ComboZone:Create(GarageZones, {name = 'garages', debugPoly=false})
-    combo:onPlayerInOut(function(isPointInside, l, zone)
-        if isPointInside and IsAuthorizedToAccessGarage(zone.name) then
-            CurrentGarage = zone.name
-            exports['qbx-core']:DrawText(Config.Garages[CurrentGarage]['drawText'], Config.DrawTextPosition)
-        else
-            CurrentGarage = nil
-            RemoveRadialOptions()
-            exports['qbx-core']:HideText()
-        end
-    end)
-end
-local function CreateGaragePolyZone(garage)
-    local zone = PolyZone:Create(Config.Garages[garage].Zone.Shape, {
-        name = garage,
-        minZ = Config.Garages[garage].Zone.minZ,
-        maxZ = Config.Garages[garage].Zone.maxZ,
-        debugPoly = Config.Garages[garage].debug
-    })
-    GarageZones[#GarageZones+1] = zone
-    --CreateGarageZone(zone, garage)
 end
 
 local function CreateGarageBoxZone(house, coords, debugPoly)
@@ -775,12 +756,6 @@ RegisterNetEvent('qb-garages:client:TakeOutGarage', function(data, cb)
     end
 end)
 
-
-
-RegisterNetEvent('qb-radialmenu:client:onRadialmenuOpen', function()
-    UpdateRadialMenu()
-end)
-
 RegisterNetEvent('qb-garages:client:OpenMenu', function()
     if CurrentGarage then
         local garage = Config.Garages[CurrentGarage]
@@ -895,8 +870,8 @@ end)
 AddEventHandler('onResourceStop', function(resource)
     if resource == GetCurrentResourceName() then
         RemoveRadialOptions()
-        for _,v in pairs(GarageZones) do
-            exports['qb-target']:RemoveZone(v.name)
+        for k,_ in pairs(GarageZones) do
+            exports['qb-target']:RemoveZone(k)
         end
     end
 end)
@@ -930,11 +905,40 @@ end)
 
 CreateThread(function()
     for garageName, garage in pairs(Config.Garages) do
-        if(garage.type == 'public' or garage.type == 'depot' or garage.type == 'job' or garage.type == 'gang') then
-            CreateGaragePolyZone(garageName)
+        if (garage.type == 'public' or garage.type == 'depot' or garage.type == 'job' or garage.type == 'gang') then
+            local zone = {}
+            for _, value in pairs(garage.Zone.Shape) do
+                zone[#zone+1] = vector3(value.x, value.y, garage.Zone['minZ']+1)
+            end
+            GarageZones[garageName] = lib.zones.poly({
+                points = zone,
+                thickness = garage.Zone.minZ - garage.Zone.maxZ,
+                debug = false,
+                onEnter = function()
+                    if IsAuthorizedToAccessGarage(garageName) then
+                        UpdateRadialMenu(garageName)
+                        exports['qb-core']:DrawText(Garages[CurrentGarage]['drawText'], DrawTextPosition)
+                    end
+                end,
+                inside = function (self)
+                    while self.insideZone do
+                        Wait(2500)
+                        if self.insideZone then
+                            UpdateRadialMenu(garageName)
+                        end
+                    end
+                end,
+                onExit = function()
+                    SetCurrentGarage()
+                    if MenuItemId ~= nil then
+                        exports['qbx-radialmenu']:RemoveOption(MenuItemId)
+                        MenuItemId = nil
+                    end
+                    exports['qb-core']:HideText()
+                end
+            })
         end
     end
-    CreateGarageZone()
 end)
 
 CreateThread(function()

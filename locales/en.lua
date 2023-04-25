@@ -1,6 +1,6 @@
 local Translations = {
     error = {
-        no_vehicles = "There is no vehicles in this location!",
+        no_vehicles = "There are no vehicles in this location!",
         not_impound = "Your vehicle is not in impound",
         not_owned = "This vehicle can't be stored",
         not_correct_type = "You can't store this type of vehicle here",
@@ -35,12 +35,6 @@ local Translations = {
             depot = "%{value} [ $%{value2} ]",
             garage = "%{value} [ %{value2} ]",
         },
-        leave = {
-            car = "⬅ Leave Garage",
-            sea = "⬅ Leave Boathouse",
-            air = "⬅ Leave Hangar",
-            job = "⬅ Leave Garage"
-        },
         text = {
             vehicles = "View stored vehicles!",
             vehicles_desc = "See your Own vehciles!",
@@ -55,7 +49,7 @@ local Translations = {
     },
 }
 
-Lang = Locale:new({
+Lang = Lang or Locale:new({
     phrases = Translations,
     warnOnMissing = true
 })

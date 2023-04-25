@@ -1,8 +1,7 @@
 # qbx-garages
 
-**THIS SCRIPT IS CONVERTED TO USE OX_LIB FEATURES TO USE WITH QBOX-PROJECT/QB-GARAGES**
 
-**ATENTION: THIS SCRIPT USES THE LATEST VERSION OF QBOX Project  [RADIALMENU](https://github.com/Qbox-project/qb-radialmenu) AND [QB-CORE](https://github.com/Qbox-project/qb-core)**
+**ATENTION: THIS SCRIPT USES THE LATEST VERSION OF THE [RADIALMENU](https://github.com/Qbox-project/qbx-radialmenu) AND [QBX-CORE](https://github.com/Qbox-project/qbx-core)**
 
 This is a qb-garages script that uses the radialmenu to retrieve and park vehicles.
 Almost everything is fully customizable to the last bit!
@@ -10,30 +9,16 @@ Almost everything is fully customizable to the last bit!
 **For screenshots scroll down**
 
 ## Dependencies
- - [qb-radialmenu](https://github.com/Qbox-project/qb-radialmenu)
- - [qb-core](https://github.com/Qbox-project/qb-core)
- - [ox_lib](https://github.com/overextended/ox_lib)
+ - [qbx-radialmenu](https://github.com/Qbox-project/qbx-radialmenu)
+ - [qbx-core](https://github.com/Qbox-project/qbx-core)
 
 ## Installation
-- Delete default qb-garages form [qb] folder.
-- Drag the downloaded qb-garages folder into the [qb] folder.
-- Insert the SQL Table Shown Below
 
-* RUN This ONLY WHEN USING StoreParkinglotAccuratly 
-    ```
-        ALTER TABLE `player_vehicles` ADD COLUMN `parkingspot` VARCHAR(200) NULL DEFAULT NULL AFTER `garage`;
-    ```
+Drag 'n Drop replace for qbx-garages.
 
-* RUN This ONLY WHEN USING StoreDamageAccuratly
-    ```
-        ALTER TABLE `player_vehicles` ADD COLUMN `damage` VARCHAR(1500) NULL DEFAULT NULL AFTER `garage`;
-    ```
-
-* RUN This ONLY WHEN USING Both StoreParkinglotAccuratly & StoreDamageAccuratly
-    ```
-    ALTER TABLE `player_vehicles`ADD COLUMN `parkingspot` VARCHAR(150) NULL DEFAULT NULL AFTER `garage`,
-    ADD COLUMN `damage` VARCHAR(1500) NULL DEFAULT NULL AFTER `parkingspot`;
-    ```
+- Delete qbx-garages.
+- Drag the downloaded qbx-garages folder into the [qbx] folder.
+- If you want to use the latest features, apply patch1.sql to your DB
 
 ## Features
 
@@ -47,30 +32,22 @@ Almost everything is fully customizable to the last bit!
 * Water Garages
 * Aircraft Garages
 
-## TODO
-
-* USE of  ``ox_lib`` zone rather using default polyzone
-* ox_target support
-* Fix Window damage when spawning vehicle
-* Preview Vehicle before spawn
-* Tidy up code
-
 ## Screenshots
 
 ![image](https://user-images.githubusercontent.com/25738474/161191185-5bfa6805-1e89-44ef-902a-11f60ed68ea8.png)
 
 ![image](https://user-images.githubusercontent.com/25738474/161191275-2ca930fe-5583-4caa-a159-0c239b404abe.png)
 
-![Screenshot 2022-11-25 113257](https://user-images.githubusercontent.com/55808925/203908136-753bf32b-7e22-4b47-97db-1bfaeba7d866.png)
+![image](https://user-images.githubusercontent.com/25738474/161191330-9270f95d-182f-4709-988a-ef13f0723ba5.png)
 
-![Screenshot 2022-11-25 113327](https://user-images.githubusercontent.com/55808925/203908148-da80e32a-707c-4a17-b45e-e4099136e877.png)
+![image](https://user-images.githubusercontent.com/25738474/161191354-057ca8d9-ee6d-4f92-8dd7-657d3bf26274.png)
 
 ## Config Example
 
 ```
 Everything that says optional can be omitted.
  -- GARAGE CONFIGURATION EXAMPLE :
-     ['somegarage'] = {
+    ['somegarage'] = {
         ['Zone'] = {
             ['Shape'] = { -- Create a polyzone by using '/pzcreate poly', '/pzadd' and '/pzfinish' or '/pzcancel' to cancel it. the newly created polyzone will be in txData/QBCoreFramework_******.base/polyzone_created_zones.txt
             vector2(-1030.4713134766, -3016.3388671875),
@@ -88,7 +65,7 @@ Everything that says optional can be omitted.
             },
             ['minZ'] = 12.5,  -- min height of the parking zone, cannot be the same as maxZ, and must be smaller than maxZ
             ['maxZ'] = 20.0,  -- max height of the parking zone
-            -- Important: Make sure the parking zone is high enough - higher than the tallest vehicle and touches the ground (turn on debug to see)
+            -- VERY IMPORTANT: Make sure the parking zone is high enough - higher than the tallest vehicle and LOW ENOUGH / touches the ground (turn on debug to see)
         },
         label = 'Hangar', -- label displayed on phone
         type = 'public', -- 'public', 'job', 'depot' or 'gang'
@@ -98,25 +75,19 @@ Everything that says optional can be omitted.
         blipColor = 69, -- optional, defaults to 3 (Blue), numbers can be found here: https://docs.fivem.net/docs/game-references/blips/
         blipcoords = vector3(-972.66, -3005.4, 13.32), -- blip coordinates
         job = 'police', -- optional, everyone can use it when not defined
-        -- job = {'police', 'ambulance'), -- optional, multi job support
-        useVehicleSpawner = true, uses the configured job vehicles, make sure to have the job attribute set! (job = 'police')                                                           <---    NEW
-        jobGarageIdentifier = 'pd1', required when using vehicle spawner, references the JobVehicles down below, make sure this matches what you used in the JobVehicles table          <---    NEW
-        gang = 'vagos', -- optional, same as job but for gangs, do not use both
-        -- gang = {'vagos', 'gsf'}, -- optional, multi gang support
-        jobVehiclesIndex = 'pd1', -- the corresponding index (JobVehicles)
         vehicleCategories = {'helicopter', 'plane'}, -- categories defined in VehicleCategories
         drawText = 'Hangar', -- the drawtext text, shown when entering the polyzone of that garage
         ParkingDistance = 10.0 -- Optional ParkingDistance, to override the global ParkingDistance
         SpawnDistance = 5.0 -- Optional SpawnDistance, to override the global SpawnDistance
-        debug = false -- will show the polyzone and the parking spots, helpful when creating new garages. If too many garages are set to debug, it will not show all parking lots
-        ExitWarpLocations: { -- Optional, Used for e.g. Boat parking, to teleport the player out of the boat to the closest location defined in the list.
+        debug = false -- Optional, will show the polyzone and the parking spots, helpful when creating new garages. If too many garages are set to debug, it will not show all parking lots
+        ExitWarpLocations: { -- Optional, Used for e.g. Boat parking, to teleport the player out of the boat to the closest location defined in the list. 
             vector3(-807.15, -1496.86, 1.6),
             vector3(-800.17, -1494.87, 1.6),
             vector3(-792.92, -1492.18, 1.6),
             vector3(-787.58, -1508.59, 1.6),
             vector3(-794.89, -1511.16, 1.6),
             vector3(-800.21, -1513.05, 1.6),
-        }
+        } 
     },
 ```
 
@@ -142,8 +113,7 @@ local garageName = 'pdgarage'
         distance = 3
     })
 ```
-### !!! OUTDATED !!! improved phone tracking (requires SQL patch to be applied, NOT RECOMMENDED UNLESS YOU KNOW WHAT YOU ARE DOING)
-
+### improved phone tracking (DEPRECATED)
 Replace:
 
 ```
@@ -182,8 +152,8 @@ end)
 * [ARSSANTO](https://github.com/ARSSANTO) - For making code style suggestions and helping me improve the performance.
 * [JustLazzy](https://github.com/JustLazzy) - I used part of his qb-garages script.
 * [bamablood94](https://github.com/bamablood94) - I used part of his qb-garages script.
-* [Qbox Devs](https://github.com/Qbox-project) - For making an awesome framework and enabling me to do this.
-* Qbox Community - Thank you so much for everyone who's been testing this!
+* [QBCore Devs](https://github.com/qbcore-framework/) - For making an awesome framework and enabling me to do this.
+* QBCore Community - Thank you so much for everyone who's been testing this!
 
 ## Support
 

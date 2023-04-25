@@ -683,10 +683,10 @@ RegisterNetEvent("qb-garages:client:GarageMenu", function(data)
                         title = Lang:t('menu.header.depot', {value = vname, value2 = v.depotprice }),
                         description = Lang:t('menu.text.depot', {value = v.plate, value2 = currentFuel, value3 = enginePercent, value4 = bodyPercent}),
                         metadata = {
-                            ['Plate'] = v.plate,
-                            ['Fuel'] = currentFuel,
-                            ['Engine'] = enginePercent,
-                            ['Body'] = bodyPercent,
+                            [Lang:t('menu.metadata.plate')] = v.plate,
+                            [Lang:t('menu.metadata.fuel')] = currentFuel,
+                            [Lang:t('menu.metadata.engine')] = enginePercent,
+                            [Lang:t('menu.metadata.body')] = bodyPercent,
                         },
                         event = "qb-garages:client:TakeOutDepot",
                         args = {
@@ -701,10 +701,10 @@ RegisterNetEvent("qb-garages:client:GarageMenu", function(data)
                         title = Lang:t('menu.header.garage', {value = vname, value2 = v.plate}),
                         description = Lang:t('menu.text.garage', {value = v.state}),
                         metadata = {
-                            ['Body'] = bodyPercent,
-                            ['Engine'] = enginePercent,
-                            ['Fuel'] = currentFuel,
-                            ['Plate'] = v.plate,
+                            [Lang:t('menu.metadata.plate')] = v.plate,
+                            [Lang:t('menu.metadata.fuel')] = currentFuel,
+                            [Lang:t('menu.metadata.engine')] = enginePercent,
+                            [Lang:t('menu.metadata.body')] = bodyPercent,
                         },
                         event = "qb-garages:client:TakeOutGarage",
                         args = {

@@ -38,8 +38,14 @@ local Translations = {
         text = {
             vehicles_desc = "Voir vos propres véhicules!",
             vehicles = "Voir les véhicules stockés!",
-            depot = "Plaque: %{value}<br>Réservoir: %{value2} | Moteur: %{value3} | Carrosserie: %{value4}",
+            depot = "Plaque: %{value} | Réservoir: %{value2} | Moteur: %{value3} | Carrosserie: %{value4}",
             garage = "État: %{value}",
+        },
+        metadata = {
+            plate = "Plaque",
+            fuel = "Réservoir",
+            engine = "Moteur",
+            body = "Carrosserie",
         }
     },
     status = {

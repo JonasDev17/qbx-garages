@@ -39,7 +39,7 @@ local Translations = {
             vehicles_desc = "Voir vos propres véhicules!",
             vehicles = "Voir les véhicules stockés!",
             depot = "Plaque: %{value}<br>Réservoir: %{value2} | Moteur: %{value3} | Carrosserie: %{value4}",
-            garage = "État: %{value}<br>Réservoir: %{value2} | Moteur: %{value3} | Carrosserie: %{value4}",
+            garage = "État: %{value}",
         }
     },
     status = {

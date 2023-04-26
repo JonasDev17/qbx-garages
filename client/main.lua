@@ -916,7 +916,7 @@ CreateThread(function()
                 onEnter = function()
                     if IsAuthorizedToAccessGarage(garageName) then
                         UpdateRadialMenu(garageName)
-                        exports['qbx-core']:DrawText(Garages[CurrentGarage]['drawText'], DrawTextPosition)
+                        exports['qbx-core']:DrawText(Garages[CurrentGarage]['drawText'], Config.DrawTextPosition)
                     end
                 end,
                 inside = function (self)

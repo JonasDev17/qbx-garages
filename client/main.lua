@@ -58,7 +58,7 @@ local function GetClosestLocation(locations, loc)
     local closestDistance = -1
     local closestIndex = -1
     local closestLocation = nil
-    local plyCoords = loc or GetEntityCoords(PlayerPedId(), 0)
+    local plyCoords = loc or GetEntityCoords(cache.ped, 0)
     for i,v in ipairs(locations) do
         local location = vector3(v.x, v.y, v.z)
         local distance = #(plyCoords - location)
@@ -100,6 +100,10 @@ function RemoveRadialOptions()
         exports['qbx-radialmenu']:RemoveOption(MenuItemId2)
         MenuItemId2 = nil
     end
+end
+
+local function ResetCurrentGarage()
+    CurrentGarage = nil
 end
 
 --Menus
@@ -249,14 +253,14 @@ local function IsAuthorizedToAccessGarage(garageName)
     if not garage then return false end
     if garage.type == 'job' then
         if type(garage.job) == "string" and not IsStringNilOrEmpty(garage.job) then
-            return PlayerJob.name == garage.job 
+            return PlayerJob.name == garage.job
         elseif type(garage.job) == "table" then
             return TableContains(garage.job, PlayerJob.name)
         else
             QBCore.Functions.Notify('job not defined on garage', 'error', 7500)
             return false
         end
-    elseif garage.type == 'gang' then 
+    elseif garage.type == 'gang' then
         if type(garage.gang) == "string" and  not IsStringNilOrEmpty(garage.gang) then
             return garage.gang == PlayerGang.name
         elseif type(garage.gang) =="table" then
@@ -351,9 +355,8 @@ local function ParkVehicle(veh, garageName, vehLocation)
 end
 
 local function AddRadialParkingOption()
-    local ped = PlayerPedId()
     local veh, dist =  QBCore.Functions.GetClosestVehicle()
-    if (veh and dist <= Config.VehicleParkDistance and Config.AllowParkingFromOutsideVehicle) or IsPedInAnyVehicle(ped) then
+    if (veh and dist <= Config.VehicleParkDistance and Config.AllowParkingFromOutsideVehicle) or IsPedInAnyVehicle(cache.ped, false) then
         MenuItemId1 = exports['qbx-radialmenu']:AddOption({
             id = 'put_up_vehicle',
             title = 'Park Vehicle',
@@ -363,14 +366,16 @@ local function AddRadialParkingOption()
             shouldClose = true
         }, MenuItemId1)
     end
-    MenuItemId2 = exports['qbx-radialmenu']:AddOption({
-        id = 'open_garage_menu',
+    if not IsPedInAnyVehicle(cache.ped, false) then
+        MenuItemId2 = exports['qbx-radialmenu']:AddOption({
+            id = 'open_garage_menu',
         title = 'Open Garage',
-        icon = 'warehouse',
-        type = 'client',
-        event = 'qb-garages:client:OpenMenu',
-        shouldClose = true
-    }, MenuItemId2)
+            icon = 'warehouse',
+            type = 'client',
+            event = 'qb-garages:client:OpenMenu',
+            shouldClose = true
+        }, MenuItemId2)
+    end
 end
 
 local function AddRadialImpoundOption()
@@ -384,7 +389,8 @@ local function AddRadialImpoundOption()
     }, MenuItemId1)
 end
 
-local function UpdateRadialMenu()
+local function UpdateRadialMenu(garagename)
+    CurrentGarage = garagename or CurrentGarage or nil
     local garage = Config.Garages[CurrentGarage]
     if CurrentGarage ~= nil and garage ~= nil then
         if garage.type == 'job' and not IsStringNilOrEmpty(garage.job) then
@@ -405,30 +411,6 @@ local function UpdateRadialMenu()
     else
         RemoveRadialOptions()
     end
-end
-
-local function CreateGarageZone()
-    local combo = ComboZone:Create(GarageZones, {name = 'garages', debugPoly=false})
-    combo:onPlayerInOut(function(isPointInside, l, zone)
-        if isPointInside and IsAuthorizedToAccessGarage(zone.name) then
-            CurrentGarage = zone.name
-            exports['qbx-core']:DrawText(Config.Garages[CurrentGarage]['drawText'], Config.DrawTextPosition)
-        else
-            CurrentGarage = nil
-            RemoveRadialOptions()
-            exports['qbx-core']:HideText()
-        end
-    end)
-end
-local function CreateGaragePolyZone(garage)
-    local zone = PolyZone:Create(Config.Garages[garage].Zone.Shape, {
-        name = garage,
-        minZ = Config.Garages[garage].Zone.minZ,
-        maxZ = Config.Garages[garage].Zone.maxZ,
-        debugPoly = Config.Garages[garage].debug
-    })
-    GarageZones[#GarageZones+1] = zone
-    --CreateGarageZone(zone, garage)
 end
 
 local function CreateGarageBoxZone(house, coords, debugPoly)
@@ -454,6 +436,7 @@ local function RegisterHousePoly(house)
     }
     zone:onPlayerInOut(function(isPointInside)
         if isPointInside then
+            UpdateRadialMenu()
             CurrentHouseGarage = house
             exports['qbx-core']:DrawText(Config.HouseParkingDrawText, Config.DrawTextPosition)
         else
@@ -546,7 +529,7 @@ function GetSpawnLocationAndHeading(garage, garageType, parkingSpots, vehicle, s
                 heading = location.w
             else
                 _, closestDistance, location = GetClosestLocation(Config.SpawnAtFreeParkingSpot and freeParkingSpots or parkingSpots)
-                local plyCoords = GetEntityCoords(PlayerPedId(), 0)
+                local plyCoords = GetEntityCoords(cache.ped, 0)
                 local spot = vector3(location.x, location.y, location.z)
                 if Config.SpawnAtLastParkinglot and vehicle and vehicle.parkingspot then
                     spot = vehicle.parkingspot
@@ -567,9 +550,9 @@ function GetSpawnLocationAndHeading(garage, garageType, parkingSpots, vehicle, s
                 end
             end
         else
-            local ped = GetEntityCoords(PlayerPedId())
-            local pedheadin = GetEntityHeading(PlayerPedId())
-            local forward = GetEntityForwardVector(PlayerPedId())
+            local ped = GetEntityCoords(cache.ped)
+            local pedheadin = GetEntityHeading(cache.ped)
+            local forward = GetEntityForwardVector(cache.ped)
             local x, y, z = table.unpack(ped + forward * 3)
             location = vector3(x, y, z)
             if Config.VehicleHeading == 'forward' then
@@ -600,7 +583,7 @@ local function UpdateVehicleSpawnerSpawnedVehicle(veh, garage, heading, cb)
     SetEntityHeading(veh, heading)
 
     if garage.WarpPlayerIntoVehicle ~= nil and garage.WarpPlayerIntoVehicle or Config.WarpPlayerIntoVehicle then
-        TaskWarpPedIntoVehicle(PlayerPedId(), veh, -1)
+        TaskWarpPedIntoVehicle(cache.ped, veh, -1)
     end
 
     SetAsMissionEntity(veh)
@@ -775,12 +758,6 @@ RegisterNetEvent('qb-garages:client:TakeOutGarage', function(data, cb)
     end
 end)
 
-
-
-RegisterNetEvent('qb-radialmenu:client:onRadialmenuOpen', function()
-    UpdateRadialMenu()
-end)
-
 RegisterNetEvent('qb-garages:client:OpenMenu', function()
     if CurrentGarage then
         local garage = Config.Garages[CurrentGarage]
@@ -796,8 +773,7 @@ RegisterNetEvent('qb-garages:client:OpenMenu', function()
 end)
 
 RegisterNetEvent('qb-garages:client:ParkVehicle', function()
-    local ped = PlayerPedId()
-    local curVeh = GetVehiclePedIsIn(ped)
+    local curVeh = GetVehiclePedIsIn(cache.ped)
     local canPark = true
     if Config.AllowParkingFromOutsideVehicle and curVeh == 0 then
         local closestVeh, dist = QBCore.Functions.GetClosestVehicle()
@@ -813,8 +789,7 @@ RegisterNetEvent('qb-garages:client:ParkVehicle', function()
 end)
 
 RegisterNetEvent('qb-garages:client:ParkLastVehicle', function(parkingName)
-    local ped = PlayerPedId()
-    local curVeh = GetLastDrivenVehicle(ped)
+    local curVeh = GetLastDrivenVehicle(cache.ped)
     if curVeh then
         local coords = GetEntityCoords(curVeh)
         ParkVehicle(curVeh, parkingName or CurrentGarage, coords)
@@ -897,8 +872,8 @@ end)
 AddEventHandler('onResourceStop', function(resource)
     if resource == GetCurrentResourceName() then
         RemoveRadialOptions()
-        for _,v in pairs(GarageZones) do
-            exports['qb-target']:RemoveZone(v.name)
+        for k,_ in pairs(GarageZones) do
+            exports['qb-target']:RemoveZone(k)
         end
     end
 end)
@@ -932,11 +907,44 @@ end)
 
 CreateThread(function()
     for garageName, garage in pairs(Config.Garages) do
-        if(garage.type == 'public' or garage.type == 'depot' or garage.type == 'job' or garage.type == 'gang') then
-            CreateGaragePolyZone(garageName)
+        if (garage.type == 'public' or garage.type == 'depot' or garage.type == 'job' or garage.type == 'gang') then
+            local zone = {}
+            for _, value in pairs(garage.Zone.Shape) do
+                zone[#zone+1] = vector3(value.x, value.y, garage.Zone['minZ']+1)
+            end
+            GarageZones[garageName] = lib.zones.poly({
+                points = zone,
+                thickness = garage.Zone.minZ - garage.Zone.maxZ,
+                debug = false,
+                onEnter = function()
+                    if IsAuthorizedToAccessGarage(garageName) then
+                        UpdateRadialMenu(garageName)
+                        exports['qbx-core']:DrawText(Garages[CurrentGarage]['drawText'], Config.DrawTextPosition)
+                    end
+                end,
+                inside = function (self)
+                    while self.insideZone do
+                        Wait(2500)
+                        if self.insideZone then
+                            UpdateRadialMenu(garageName)
+                        end
+                    end
+                end,
+                onExit = function()
+                    ResetCurrentGarage()
+                    if MenuItemId2 ~= nil then
+                        exports['qbx-radialmenu']:RemoveOption(MenuItemId2)
+                        MenuItemId2 = nil
+                    end
+                    if MenuItemId1 ~= nil then
+                        exports['qbx-radialmenu']:RemoveOption(MenuItemId1)
+                        MenuItemId1 = nil
+                    end
+                    exports['qb-core']:HideText()
+                end
+            })
         end
     end
-    CreateGarageZone()
 end)
 
 CreateThread(function()

@@ -436,6 +436,7 @@ local function RegisterHousePoly(house)
     }
     zone:onPlayerInOut(function(isPointInside)
         if isPointInside then
+            UpdateRadialMenu()
             CurrentHouseGarage = house
             exports['qbx-core']:DrawText(Config.HouseParkingDrawText, Config.DrawTextPosition)
         else
@@ -929,11 +930,15 @@ CreateThread(function()
                 end,
                 onExit = function()
                     SetCurrentGarage()
-                    if MenuItemId ~= nil then
-                        exports['qbx-radialmenu']:RemoveOption(MenuItemId)
-                        MenuItemId = nil
+                    if MenuItemId2 ~= nil then
+                        exports['qbx-radialmenu']:RemoveOption(MenuItemId2)
+                        MenuItemId2 = nil
                     end
-                    exports['qbx-core']:HideText()
+                    if MenuItemId1 ~= nil then
+                        exports['qbx-radialmenu']:RemoveOption(MenuItemId1)
+                        MenuItemId1 = nil
+                    end
+                    exports['qb-core']:HideText()
                 end
             })
         end

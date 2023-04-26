@@ -781,7 +781,7 @@ RegisterNetEvent('qb-garages:client:ParkVehicle', function()
             curVeh = closestVeh
         end
     else
-	canPark = GetPedInVehicleSeat(curVeh, -1) == ped
+	canPark = GetPedInVehicleSeat(curVeh, -1) == cache.ped
     end
     if curVeh ~= 0 and canPark then
         ParkVehicle(curVeh)

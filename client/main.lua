@@ -102,7 +102,7 @@ function RemoveRadialOptions()
     end
 end
 
-local function SetCurrentGarage()
+local function ResetCurrentGarage()
     CurrentGarage = nil
 end
 
@@ -931,7 +931,7 @@ CreateThread(function()
                     end
                 end,
                 onExit = function()
-                    SetCurrentGarage()
+                    ResetCurrentGarage()
                     if MenuItemId2 ~= nil then
                         exports['qbx-radialmenu']:RemoveOption(MenuItemId2)
                         MenuItemId2 = nil

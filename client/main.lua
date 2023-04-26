@@ -774,14 +774,16 @@ end)
 
 RegisterNetEvent('qb-garages:client:ParkVehicle', function()
     local curVeh = GetVehiclePedIsIn(cache.ped)
+    local canPark = true
     if Config.AllowParkingFromOutsideVehicle and curVeh == 0 then
         local closestVeh, dist = QBCore.Functions.GetClosestVehicle()
         if dist <= Config.VehicleParkDistance then
             curVeh = closestVeh
         end
+    else
+	canPark = GetPedInVehicleSeat(curVeh, -1) == ped
     end
-    if curVeh ~= 0 and GetPedInVehicleSeat(curVeh, -1) == cache.ped then
-        local coords = GetEntityCoords(curVeh)
+    if curVeh ~= 0 and canPark then
         ParkVehicle(curVeh)
     end
 end)

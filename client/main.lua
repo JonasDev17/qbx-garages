@@ -58,7 +58,7 @@ local function GetClosestLocation(locations, loc)
     local closestDistance = -1
     local closestIndex = -1
     local closestLocation = nil
-    local plyCoords = loc or GetEntityCoords(PlayerPedId(), 0)
+    local plyCoords = loc or GetEntityCoords(cache.ped, 0)
     for i,v in ipairs(locations) do
         local location = vector3(v.x, v.y, v.z)
         local distance = #(plyCoords - location)
@@ -102,7 +102,7 @@ function RemoveRadialOptions()
     end
 end
 
-local function SetCurrentGarage()
+local function ResetCurrentGarage()
     CurrentGarage = nil
 end
 
@@ -355,9 +355,8 @@ local function ParkVehicle(veh, garageName, vehLocation)
 end
 
 local function AddRadialParkingOption()
-    local ped = PlayerPedId()
     local veh, dist =  QBCore.Functions.GetClosestVehicle()
-    if (veh and dist <= Config.VehicleParkDistance and Config.AllowParkingFromOutsideVehicle) or IsPedInAnyVehicle(ped) then
+    if (veh and dist <= Config.VehicleParkDistance and Config.AllowParkingFromOutsideVehicle) or IsPedInAnyVehicle(cache.ped, false) then
         MenuItemId1 = exports['qbx-radialmenu']:AddOption({
             id = 'put_up_vehicle',
             title = 'Park Vehicle',
@@ -367,14 +366,16 @@ local function AddRadialParkingOption()
             shouldClose = true
         }, MenuItemId1)
     end
-    MenuItemId2 = exports['qbx-radialmenu']:AddOption({
-        id = 'open_garage_menu',
+    if not IsPedInAnyVehicle(cache.ped, false) then
+        MenuItemId2 = exports['qbx-radialmenu']:AddOption({
+            id = 'open_garage_menu',
         title = 'Open Garage',
-        icon = 'warehouse',
-        type = 'client',
-        event = 'qb-garages:client:OpenMenu',
-        shouldClose = true
-    }, MenuItemId2)
+            icon = 'warehouse',
+            type = 'client',
+            event = 'qb-garages:client:OpenMenu',
+            shouldClose = true
+        }, MenuItemId2)
+    end
 end
 
 local function AddRadialImpoundOption()
@@ -435,6 +436,7 @@ local function RegisterHousePoly(house)
     }
     zone:onPlayerInOut(function(isPointInside)
         if isPointInside then
+            UpdateRadialMenu()
             CurrentHouseGarage = house
             exports['qbx-core']:DrawText(Config.HouseParkingDrawText, Config.DrawTextPosition)
         else
@@ -527,7 +529,7 @@ function GetSpawnLocationAndHeading(garage, garageType, parkingSpots, vehicle, s
                 heading = location.w
             else
                 _, closestDistance, location = GetClosestLocation(Config.SpawnAtFreeParkingSpot and freeParkingSpots or parkingSpots)
-                local plyCoords = GetEntityCoords(PlayerPedId(), 0)
+                local plyCoords = GetEntityCoords(cache.ped, 0)
                 local spot = vector3(location.x, location.y, location.z)
                 if Config.SpawnAtLastParkinglot and vehicle and vehicle.parkingspot then
                     spot = vehicle.parkingspot
@@ -548,9 +550,9 @@ function GetSpawnLocationAndHeading(garage, garageType, parkingSpots, vehicle, s
                 end
             end
         else
-            local ped = GetEntityCoords(PlayerPedId())
-            local pedheadin = GetEntityHeading(PlayerPedId())
-            local forward = GetEntityForwardVector(PlayerPedId())
+            local ped = GetEntityCoords(cache.ped)
+            local pedheadin = GetEntityHeading(cache.ped)
+            local forward = GetEntityForwardVector(cache.ped)
             local x, y, z = table.unpack(ped + forward * 3)
             location = vector3(x, y, z)
             if Config.VehicleHeading == 'forward' then
@@ -581,7 +583,7 @@ local function UpdateVehicleSpawnerSpawnedVehicle(veh, garage, heading, cb)
     SetEntityHeading(veh, heading)
 
     if garage.WarpPlayerIntoVehicle ~= nil and garage.WarpPlayerIntoVehicle or Config.WarpPlayerIntoVehicle then
-        TaskWarpPedIntoVehicle(PlayerPedId(), veh, -1)
+        TaskWarpPedIntoVehicle(cache.ped, veh, -1)
     end
 
     SetAsMissionEntity(veh)
@@ -771,23 +773,23 @@ RegisterNetEvent('qb-garages:client:OpenMenu', function()
 end)
 
 RegisterNetEvent('qb-garages:client:ParkVehicle', function()
-    local ped = PlayerPedId()
-    local curVeh = GetVehiclePedIsIn(ped)
+    local curVeh = GetVehiclePedIsIn(cache.ped)
+    local canPark = true
     if Config.AllowParkingFromOutsideVehicle and curVeh == 0 then
         local closestVeh, dist = QBCore.Functions.GetClosestVehicle()
         if dist <= Config.VehicleParkDistance then
             curVeh = closestVeh
         end
+    else
+	canPark = GetPedInVehicleSeat(curVeh, -1) == cache.ped
     end
-    if curVeh ~= 0 and GetPedInVehicleSeat(curVeh, -1) == ped then
-        local coords = GetEntityCoords(curVeh)
+    if curVeh ~= 0 and canPark then
         ParkVehicle(curVeh)
     end
 end)
 
 RegisterNetEvent('qb-garages:client:ParkLastVehicle', function(parkingName)
-    local ped = PlayerPedId()
-    local curVeh = GetLastDrivenVehicle(ped)
+    local curVeh = GetLastDrivenVehicle(cache.ped)
     if curVeh then
         local coords = GetEntityCoords(curVeh)
         ParkVehicle(curVeh, parkingName or CurrentGarage, coords)
@@ -917,7 +919,7 @@ CreateThread(function()
                 onEnter = function()
                     if IsAuthorizedToAccessGarage(garageName) then
                         UpdateRadialMenu(garageName)
-                        exports['qb-core']:DrawText(Garages[CurrentGarage]['drawText'], DrawTextPosition)
+                        exports['qbx-core']:DrawText(Garages[CurrentGarage]['drawText'], Config.DrawTextPosition)
                     end
                 end,
                 inside = function (self)
@@ -929,10 +931,14 @@ CreateThread(function()
                     end
                 end,
                 onExit = function()
-                    SetCurrentGarage()
-                    if MenuItemId ~= nil then
-                        exports['qbx-radialmenu']:RemoveOption(MenuItemId)
-                        MenuItemId = nil
+                    ResetCurrentGarage()
+                    if MenuItemId2 ~= nil then
+                        exports['qbx-radialmenu']:RemoveOption(MenuItemId2)
+                        MenuItemId2 = nil
+                    end
+                    if MenuItemId1 ~= nil then
+                        exports['qbx-radialmenu']:RemoveOption(MenuItemId1)
+                        MenuItemId1 = nil
                     end
                     exports['qb-core']:HideText()
                 end

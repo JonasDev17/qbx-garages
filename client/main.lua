@@ -494,7 +494,7 @@ function GetFreeParkingSpots(parkingSpots)
     local freeParkingSpots = {}
     for _, parkingSpot in ipairs(parkingSpots) do
         local veh, distance = QBCore.Functions.GetClosestVehicle(vector3(parkingSpot.x,parkingSpot.y, parkingSpot.z))
-        if veh == -1 or distance >= 1.5 then
+        if not veh or distance >= 1.5 then
             freeParkingSpots[#freeParkingSpots+1] = parkingSpot
         end
     end
@@ -543,7 +543,7 @@ function GetSpawnLocationAndHeading(garage, garageType, parkingSpots, vehicle, s
                     return
                 else
                     local veh, distance = QBCore.Functions.GetClosestVehicle(vector3(location.x,location.y, location.z))
-                    if veh ~= -1 and distance <= 1.5 then
+                    if veh and distance <= 1.5 then
                         QBCore.Functions.Notify(Lang:t("error.occupied"), "error", 4500)
                     return end
                     heading = location.w

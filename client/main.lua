@@ -92,11 +92,11 @@ function GetVehicleByPlate(plate)
 end
 
 function RemoveRadialOptions()
-    if MenuItemId1 ~= nil then
+    if MenuItemId1 then
         exports['qbx-radialmenu']:RemoveOption(MenuItemId1)
         MenuItemId1 = nil
     end
-    if MenuItemId2 ~= nil then
+    if MenuItemId2 then
         exports['qbx-radialmenu']:RemoveOption(MenuItemId2)
         MenuItemId2 = nil
     end
@@ -286,7 +286,7 @@ local function CanParkVehicle(veh, garageName, vehLocation)
     end
 
     local parkingSpots = garage.ParkingSpots and garage.ParkingSpots or {}
-    if next(parkingSpots) ~= nil then
+    if next(parkingSpots) then
         local _, closestDistance, closestLocation = GetClosestLocation(parkingSpots, vehLocation)
         if closestDistance >= parkingDistance then
             QBCore.Functions.Notify(Lang:t("error.too_far_away"), "error", 4500)
@@ -357,7 +357,8 @@ end
 local function AddRadialParkingOption()
     local veh, dist =  QBCore.Functions.GetClosestVehicle()
     if (veh and dist <= Config.VehicleParkDistance and Config.AllowParkingFromOutsideVehicle) or IsPedInAnyVehicle(cache.ped, false) then
-        MenuItemId1 = exports['qbx-radialmenu']:AddOption({
+	if MenuItemId1 then return end
+	MenuItemId1 = exports['qbx-radialmenu']:AddOption({
             id = 'put_up_vehicle',
             title = 'Park Vehicle',
             icon = 'square-parking',
@@ -366,20 +367,22 @@ local function AddRadialParkingOption()
             shouldClose = true
         }, MenuItemId1)
     end
-    if not IsPedInAnyVehicle(cache.ped, false) then
-        MenuItemId2 = exports['qbx-radialmenu']:AddOption({
-            id = 'open_garage_menu',
-        title = 'Open Garage',
-            icon = 'warehouse',
-            type = 'client',
-            event = 'qb-garages:client:OpenMenu',
-            shouldClose = true
-        }, MenuItemId2)
-    end
+	if not IsPedInAnyVehicle(cache.ped, false) then
+		if MenuItemId2 then return end
+		MenuItemId2 = exports['qbx-radialmenu']:AddOption({
+			id = 'open_garage_menu',
+			title = 'Open Garage',
+			icon = 'warehouse',
+			type = 'client',
+			event = 'qb-garages:client:OpenMenu',
+			shouldClose = true
+		}, MenuItemId2)
+	end
 end
 
 local function AddRadialImpoundOption()
-    MenuItemId1 = exports['qbx-radialmenu']:AddOption({
+	if MenuItemId1 then return end
+	MenuItemId1 = exports['qbx-radialmenu']:AddOption({
         id = 'open_garage_menu',
         title = 'Open Impound Lot',
         icon = 'warehouse',
@@ -392,7 +395,7 @@ end
 local function UpdateRadialMenu(garagename)
     CurrentGarage = garagename or CurrentGarage or nil
     local garage = Config.Garages[CurrentGarage]
-    if CurrentGarage ~= nil and garage ~= nil then
+    if CurrentGarage and garage then
         if garage.type == 'job' and not IsStringNilOrEmpty(garage.job) then
             if IsAuthorizedToAccessGarage(CurrentGarage) then
                 AddRadialParkingOption()
@@ -406,7 +409,7 @@ local function UpdateRadialMenu(garagename)
         elseif IsAuthorizedToAccessGarage(CurrentGarage) then
            AddRadialParkingOption()
         end
-    elseif CurrentHouseGarage ~= nil then
+    elseif CurrentHouseGarage then
        AddRadialParkingOption()
     else
         RemoveRadialOptions()
@@ -519,7 +522,7 @@ function GetSpawnLocationAndHeading(garage, garageType, parkingSpots, vehicle, s
         location = garage.takeVehicle
         heading = garage.takeVehicle.h -- yes its 'h' not 'w'...
     else
-        if next(parkingSpots) ~= nil then
+        if next(parkingSpots) then
             local freeParkingSpots = GetFreeParkingSpots(parkingSpots)
             if Config.AllowSpawningFromAnywhere then
                 location = GetFreeSingleParkingSpot(freeParkingSpots, vehicle)
@@ -582,7 +585,7 @@ local function UpdateVehicleSpawnerSpawnedVehicle(veh, garage, heading, cb)
     ClearMenu()
     SetEntityHeading(veh, heading)
 
-    if garage.WarpPlayerIntoVehicle ~= nil and garage.WarpPlayerIntoVehicle or Config.WarpPlayerIntoVehicle then
+	if garage.WarpPlayerIntoVehicle or Config.WarpPlayerIntoVehicle and garage.WarpPlayerIntoVehicle == nil then
         TaskWarpPedIntoVehicle(cache.ped, veh, -1)
     end
 
@@ -597,11 +600,11 @@ local function SpawnVehicleSpawnerVehicle(vehicleModel, location, heading, cb)
         QBCore.Functions.TriggerCallback('QBCore:Server:SpawnVehicle', function(netId)
             local veh = NetToVeh(netId)
             UpdateVehicleSpawnerSpawnedVehicle(veh, garage, heading, cb)
-        end,vehicleModel, location, garage.WarpPlayerIntoVehicle ~= nil and garage.WarpPlayerIntoVehicle or Config.WarpPlayerIntoVehicle)
+        end,vehicleModel, location, garage.WarpPlayerIntoVehicle or Config.WarpPlayerIntoVehicle and garage.WarpPlayerIntoVehicle == nil)
     else
         QBCore.Functions.SpawnVehicle(vehicleModel, function(veh)
             UpdateVehicleSpawnerSpawnedVehicle(veh, garage, heading, cb)
-        end, location, true, garage.WarpPlayerIntoVehicle ~= nil and garage.WarpPlayerIntoVehicle or Config.WarpPlayerIntoVehicle)
+        end, location, true, garage.WarpPlayerIntoVehicle or Config.WarpPlayerIntoVehicle and garage.WarpPlayerIntoVehicle == nil)
     end
 end
 
@@ -746,14 +749,14 @@ RegisterNetEvent('qb-garages:client:TakeOutGarage', function(data, cb)
                 end
                 UpdateSpawnedVehicle(veh, vehicle, heading, garage, properties)
                 if cb then cb(veh) end
-            end, vehicle, location, garage.WarpPlayerIntoVehicle ~= nil and garage.WarpPlayerIntoVehicle or Config.WarpPlayerIntoVehicle)
+            end, vehicle, location, garage.WarpPlayerIntoVehicle or Config.WarpPlayerIntoVehicle and garage.WarpPlayerIntoVehicle == nil)
         else
             QBCore.Functions.SpawnVehicle(vehicleModel, function(veh)
                 QBCore.Functions.TriggerCallback('qb-garage:server:GetVehicleProperties', function(properties)
                     UpdateSpawnedVehicle(veh, vehicle, heading, garage, properties)
                     if cb then cb(veh) end
                 end, vehicle.plate)
-            end, location, true, garage.WarpPlayerIntoVehicle ~= nil and garage.WarpPlayerIntoVehicle or Config.WarpPlayerIntoVehicle)
+            end, location, true, garage.WarpPlayerIntoVehicle or Config.WarpPlayerIntoVehicle and garage.WarpPlayerIntoVehicle == nil)
         end
     end
 end)
@@ -801,7 +804,7 @@ end)
 RegisterNetEvent('qb-garages:client:TakeOutDepot', function(data)
     local vehicle = data.vehicle
     -- check whether the vehicle is already spawned
-    local vehExists = DoesEntityExist(OutsideVehicles[vehicle.plate]) or (not Config.SpawnVehiclesServerside and GetVehicleByPlate(vehicle.plate) ~= nil)
+    local vehExists = DoesEntityExist(OutsideVehicles[vehicle.plate]) or (not Config.SpawnVehiclesServerside and GetVehicleByPlate(vehicle.plate))
     if not vehExists then
         local PlayerData = QBCore.Functions.GetPlayerData()
         if PlayerData.money['cash'] >= vehicle.depotprice or PlayerData.money['bank'] >= vehicle.depotprice then
@@ -932,14 +935,7 @@ CreateThread(function()
                 end,
                 onExit = function()
                     ResetCurrentGarage()
-                    if MenuItemId2 ~= nil then
-                        exports['qbx-radialmenu']:RemoveOption(MenuItemId2)
-                        MenuItemId2 = nil
-                    end
-                    if MenuItemId1 ~= nil then
-                        exports['qbx-radialmenu']:RemoveOption(MenuItemId1)
-                        MenuItemId1 = nil
-                    end
+					RemoveRadialOptions()
                     exports['qb-core']:HideText()
                 end
             })
@@ -958,7 +954,7 @@ CreateThread(function()
     while debug do
         for _, garage in pairs(Config.Garages) do
             local parkingSpots = garage.ParkingSpots and garage.ParkingSpots or {}
-            if next(parkingSpots) ~= nil and garage.debug then
+            if next(parkingSpots) and garage.debug then
                 for _, location in pairs(parkingSpots) do
                     DrawMarker(2, location.x, location.y, location.z + 0.98, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.4, 0.4, 0.2, 255, 255, 255, 255, 0, 0, 0, 1, 0, 0, 0)
                 end

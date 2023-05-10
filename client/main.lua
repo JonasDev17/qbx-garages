@@ -416,46 +416,35 @@ local function UpdateRadialMenu(garagename)
     end
 end
 
-local function CreateGarageBoxZone(house, coords, debugPoly)
-    local pos = vector3(coords.x, coords.y, coords.z)
-    return BoxZone:Create(pos,5,3.5, {
-        name = house,
-        offset = {0.0, 0.0, 0.0},
-        debugPoly = debugPoly,
-        heading = coords.h,
-        minZ = pos.z - 1.0,
-        maxZ = pos.z + 1.0,
-    })
-end
 
 local function RegisterHousePoly(house)
     if GaragePoly[house] then return end
     local coords = Config.HouseGarages[house].takeVehicle
     if not coords or not coords.x then return end
-    local zone = CreateGarageBoxZone(house, coords, false)
-    GaragePoly[house] = {
-        Polyzone = zone,
-        coords = coords,
-    }
-    zone:onPlayerInOut(function(isPointInside)
-        if isPointInside then
-            UpdateRadialMenu()
+    local pos = vector3(coords.x, coords.y, coords.z)
+    GaragePoly[house] = lib.zones.box({
+        coords = pos,
+        size = vec3(7.5, 7.5, 5),
+        rotation = coords.h or coords.w,
+        debug = true,
+        onEnter = function()
             CurrentHouseGarage = house
+            UpdateRadialMenu()
             exports['qbx-core']:DrawText(Config.HouseParkingDrawText, Config.DrawTextPosition)
-        else
+        end,
+        onExit = function()
             exports['qbx-core']:HideText()
             RemoveRadialOptions()
             CurrentHouseGarage = nil
         end
-    end)
+    })
 end
 
 local function RemoveHousePoly(house)
     if not GaragePoly[house] then return end
-    GaragePoly[house].Polyzone:destroy()
+    GaragePoly[house]:remove()
     GaragePoly[house] = nil
 end
-
 
 function JobMenuGarage(garageName)
     local job = QBCore.Functions.GetPlayerData().job.name
@@ -688,10 +677,10 @@ RegisterNetEvent("qb-garages:client:GarageMenu", function(data)
                         title = Lang:t('menu.header.depot', {value = vname, value2 = v.depotprice }),
                         description = Lang:t('menu.text.depot', {value = v.plate, value2 = currentFuel, value3 = enginePercent, value4 = bodyPercent}),
                         metadata = {
-                            ['Plate'] = v.plate,
-                            ['Fuel'] = currentFuel,
-                            ['Engine'] = enginePercent,
-                            ['Body'] = bodyPercent,
+                            [Lang:t('menu.metadata.plate')] = v.plate,
+                            [Lang:t('menu.metadata.fuel')] = currentFuel,
+                            [Lang:t('menu.metadata.engine')] = enginePercent,
+                            [Lang:t('menu.metadata.body')] = bodyPercent,
                         },
                         event = "qb-garages:client:TakeOutDepot",
                         args = {
@@ -706,10 +695,10 @@ RegisterNetEvent("qb-garages:client:GarageMenu", function(data)
                         title = Lang:t('menu.header.garage', {value = vname, value2 = v.plate}),
                         description = Lang:t('menu.text.garage', {value = v.state}),
                         metadata = {
-                            ['Body'] = bodyPercent,
-                            ['Engine'] = enginePercent,
-                            ['Fuel'] = currentFuel,
-                            ['Plate'] = v.plate,
+                            [Lang:t('menu.metadata.plate')] = v.plate,
+                            [Lang:t('menu.metadata.fuel')] = currentFuel,
+                            [Lang:t('menu.metadata.engine')] = enginePercent,
+                            [Lang:t('menu.metadata.body')] = bodyPercent,
                         },
                         event = "qb-garages:client:TakeOutGarage",
                         args = {

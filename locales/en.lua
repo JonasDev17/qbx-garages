@@ -37,9 +37,15 @@ local Translations = {
         },
         text = {
             vehicles = "View stored vehicles!",
-            vehicles_desc = "See your Own vehciles!",
-            depot = "Plate: %{value}<br>Fuel: %{value2} | Engine: %{value3} | Body: %{value4}",
+            vehicles_desc = "See your Own vehicles!",
+            depot = "Plate: %{value} | Fuel: %{value2} | Engine: %{value3} | Body: %{value4}",
             garage = "State: %{value}",
+        },
+        metadata = {
+            plate = "Plate",
+            fuel = "Fuel",
+            engine = "Engine",
+            body = "Body",
         }
     },
     status = {

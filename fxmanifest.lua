@@ -6,11 +6,17 @@ version '1.0.0'
 author 'JDev'
 
 shared_scripts {
+    '@qbx-core/import.lua'
     '@ox_lib/init.lua',
-    '@qb-core/shared/locale.lua',
+    '@qbx-core/shared/locale.lua',
     'config.lua',
     'locales/en.lua',
     'locales/*.lua'
+}
+
+modules {
+    'qbx-core:core',
+    'qbx-core:utils'
 }
 
 client_scripts {
@@ -23,3 +29,4 @@ server_scripts {
 }
 
 lua54 'yes'
+use_experimental_fxv2_oal 'yes'

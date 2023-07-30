@@ -424,7 +424,7 @@ local function RegisterHousePoly(house)
         coords = pos,
         size = vec3(7.5, 7.5, 5),
         rotation = coords.h or coords.w,
-        debug = true,
+        debug = false,
         onEnter = function()
             CurrentHouseGarage = house
             UpdateRadialMenu()

@@ -112,7 +112,7 @@ local function GetVehicles(citizenid, garageName, state, cb)
             ['@state'] = state
         })
     end
-    cb(result)
+    return cb(result)
 end
 
 local function GetDepotVehicles(citizenid, state, garage, cb)
@@ -121,7 +121,7 @@ local function GetDepotVehicles(citizenid, state, garage, cb)
         ['@state'] = state,
         ['@garage'] = garage
     })
-    cb(result)
+    return cb(result)
 end
 
 local function GetVehicleByPlate(plate)
@@ -139,7 +139,7 @@ lib.callback.register("qb-garage:server:GetGarageVehicles", function(source, gar
     local pData = QBCore.Functions.GetPlayer(source)
     local playerGang = pData.PlayerData.gang.name;
     if garageType == "public" then        --Public garages give player cars in the garage only
-        GetVehicles(pData.PlayerData.citizenid, garage, 1, function(result)
+        local vehs = GetVehicles(pData.PlayerData.citizenid, garage, 1, function(result)
             local vehs = {}
             if result[1] then
                 for _, vehicle in pairs(result) do
@@ -156,11 +156,11 @@ lib.callback.register("qb-garage:server:GetGarageVehicles", function(source, gar
                 end
                 return vehs
             end
-            
             return nil
         end)
+        return vehs
     elseif garageType == "depot" then    --Depot give player cars that are not in garage only
-        GetDepotVehicles(pData.PlayerData.citizenid, 0, garage, function(result)
+        local tosend = GetDepotVehicles(pData.PlayerData.citizenid, 0, garage, function(result)
             local tosend = {}
             if result[1] then
                 if type(category) == 'table' then
@@ -199,33 +199,32 @@ lib.callback.register("qb-garage:server:GetGarageVehicles", function(source, gar
                 return nil
             end
         end)
-    else                            --House give all cars in the garage, Job and Gang depend of config
+        return tosend
+    else --House give all cars in the garage, Job and Gang depend of config
         local shared = ''
         if not TableContains(Config.SharedJobGarages, garage) and not (Config.SharedHouseGarage and garageType == "house") and not ((Config.SharedGangGarages == true or (type(Config.SharedGangGarages) == "table" and Config.SharedGangGarages[playerGang])) and garageType == "gang") then
-            shared = " AND citizenid = '"..pData.PlayerData.citizenid.."'"
+            shared = " AND citizenid = '" .. pData.PlayerData.citizenid .. "'"
         end
-         MySQL.query('SELECT * FROM player_vehicles WHERE garage = ? AND state = ?'..shared, {garage, 1}, function(result)
-            if result[1] then
-                local vehs = {}
-                for _, vehicle in pairs(result) do
-                    local spot = json.decode(vehicle.parkingspot)
-                    if vehicle.parkingspot then
-                        vehicle.parkingspot = vector3(spot.x, spot.y, spot.z)
-                    end
-                    if vehicle.damage then
-                        vehicle.damage = json.decode(vehicle.damage)
-                    end
-                    vehs[#vehs + 1] = vehicle
+
+        local result = MySQL.query.await('SELECT * FROM player_vehicles WHERE garage = ? AND state = ?' .. shared, { garage, 1 })
+        if result[1] then
+            local vehs = {}
+            for _, vehicle in pairs(result) do
+                local spot = json.decode(vehicle.parkingspot)
+                if vehicle.parkingspot then
+                    vehicle.parkingspot = vector3(spot.x, spot.y, spot.z)
                 end
-                return vehs
-            else
-                return nil
+                if vehicle.damage then
+                    vehicle.damage = json.decode(vehicle.damage)
+                end
+                vehs[#vehs + 1] = vehicle
             end
-        end)
+            return vehs
+        else
+            return nil
+        end
     end
 end)
-
-
 
 lib.callback.register("qb-garage:server:checkOwnership", function(source, plate, garageType, garage, gang)
     local src = source

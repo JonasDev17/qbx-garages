@@ -6,7 +6,7 @@ version '1.0.0'
 author 'JDev'
 
 shared_scripts {
-    '@qbx-core/import.lua'
+    '@qbx-core/import.lua',
     '@ox_lib/init.lua',
     '@qbx-core/shared/locale.lua',
     'config.lua',

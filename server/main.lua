@@ -38,7 +38,6 @@ lib.callback.register("qb-garages:server:GetVehicleLocation", function(source, p
         local pl = GetVehicleNumberPlateText(vehicle)
         if pl == plate then
             return GetEntityCoords(vehicle)
-            return
         end
     end
     local result = MySQL.Sync.fetchAll('SELECT * FROM player_vehicles WHERE plate = ?', {plate})
@@ -85,7 +84,7 @@ RegisterNetEvent("qb-garage:server:UpdateSpawnedVehicle", function(plate, value)
 end)
 
 lib.callback.register('qb-garage:server:spawnvehicle', function (source, vehInfo, coords, warp)
-    local veh = QBCore.Functions.SpawnVehicle(source, vehInfo.vehicle, coords, warp)
+    local veh = QBCore.Functions.CreateVehicle(source, vehInfo.vehicle, coords, warp)
     
     if not veh or not NetworkGetNetworkIdFromEntity(veh) then
         print('ISSUE HERE', veh, NetworkGetNetworkIdFromEntity(veh))
@@ -376,8 +375,8 @@ lib.callback.register("qb-garage:server:checkVehicleOwner", function(source, pla
     end)
 end)
 
---Call from qb-phone
-QBCore.Functions.CreateCallback('qb-garage:server:GetPlayerVehicles', function(source)
+--Call from qb-phone 
+QBCore.Functions.CreateCallback('qb-garage:server:GetPlayerVehicles', function(source, cb)
     local Player = QBCore.Functions.GetPlayer(source)
     local Vehicles = {}
 
@@ -425,9 +424,9 @@ QBCore.Functions.CreateCallback('qb-garage:server:GetPlayerVehicles', function(s
                 }
                 ::continue::
             end
-            return Vehicles
+            cb(Vehicles)
         else
-            return nil
+            cb(nil)
         end
     end)
 end)
@@ -442,11 +441,16 @@ end
 
 
 -- Command to restore lost cars (garage: 'None' or something similar)
-QBCore.Commands.Add("restorelostcars", "Restores cars that were parked in a grage that no longer exists in the config or is invalid (name change or removed).", {{name = "destination_garage", help = "(Optional) Garage where the cars are being sent to."}}, false,
-function(source, args)
+lib.addCommand("restorelostcars", {
+    help = "Restores cars that were parked in a grage that no longer exists in the config or is invalid (name change or removed).",
+    params = {
+        {name = "destination_garage", help = "(Optional) Garage where the cars are being sent to.", optional = true}
+    },
+    restricted = Config.RestoreCommandPermissionLevel
+}, function(source, args)
     local src = source
     if next(Config.Garages) ~= nil then
-        local destinationGarage = args[1] and args[1] or GetRandomPublicGarage()
+        local destinationGarage = args.destination_garage and args.destination_garage or GetRandomPublicGarage()
         if Config.Garages[destinationGarage] == nil then
             TriggerClientEvent('QBCore:Notify', src, 'Invalid garage name provided', 'error', 4500)
             return
@@ -469,11 +473,17 @@ function(source, args)
             end
         end)
     end
-end, Config.RestoreCommandPermissionLevel)
+end)
 
 
 if Config.EnableTrackVehicleByPlateCommand then
-    QBCore.Commands.Add(Config.TrackVehicleByPlateCommand, 'Track vehicle', {{name='plate', help='Plate'}}, true, function(source, args)
-    TriggerClientEvent('qb-garages:client:TrackVehicleByPlate', source, args[1])
-    end, Config.TrackVehicleByPlateCommandPermissionLevel)
+    lib.addCommand(Config.TrackVehicleByPlateCommand, {
+        params = {
+            {name='plate', help='Plate', optional=false},
+        },
+        help = 'Track vehicle',
+        restricted = Config.TrackVehicleByPlateCommandPermissionLevel,
+    }, function(source, args)
+        TriggerClientEvent('qb-garages:client:TrackVehicleByPlate', source, args.plate)
+    end)
 end

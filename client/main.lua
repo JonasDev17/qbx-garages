@@ -231,7 +231,7 @@ local function ExitAndDeleteVehicle(vehicle)
             end
         end
     end
-    SetVehicleDoorsLocked(vehicle)
+    SetVehicleDoorsLocked(vehicle, 2)
     local plate = GetVehicleNumberPlateText(vehicle)
     Wait(1500)
     QBCore.Functions.DeleteVehicle(vehicle)
@@ -414,7 +414,6 @@ local function UpdateRadialMenu(garagename)
     end
 end
 
-
 local function RegisterHousePoly(house)
     if GaragePoly[house] then return end
     local coords = Config.HouseGarages[house].takeVehicle
@@ -444,7 +443,7 @@ local function RemoveHousePoly(house)
     GaragePoly[house] = nil
 end
 
-function JobMenuGarage(garageName)
+local function JobMenuGarage(garageName)
     local job = QBCore.Functions.GetPlayerData().job.name
     local garage = Config.Garages[garageName]
     local jobGarage = Config.JobVehicles[garage.jobGarageIdentifier]
@@ -480,7 +479,7 @@ function JobMenuGarage(garageName)
     lib.showContext('qbx_jobVehicle_Menu')
 end
 
-function GetFreeParkingSpots(parkingSpots)
+local function GetFreeParkingSpots(parkingSpots)
     local freeParkingSpots = {}
     for _, parkingSpot in ipairs(parkingSpots) do
         local veh, distance = QBCore.Functions.GetClosestVehicle(vector3(parkingSpot.x,parkingSpot.y, parkingSpot.z))
@@ -491,7 +490,7 @@ function GetFreeParkingSpots(parkingSpots)
     return freeParkingSpots
 end
 
-function GetFreeSingleParkingSpot(freeParkingSpots, vehicle)
+local function GetFreeSingleParkingSpot(freeParkingSpots, vehicle)
     local checkAt = nil
     if Config.StoreParkinglotAccuratly and Config.SpawnAtLastParkinglot and vehicle and vehicle.parkingspot then
         checkAt = vector3(vehicle.parkingspot.x, vehicle.parkingspot.y, vehicle.parkingspot.z) or nil
@@ -500,7 +499,7 @@ function GetFreeSingleParkingSpot(freeParkingSpots, vehicle)
     return location
 end
 
-function GetSpawnLocationAndHeading(garage, garageType, parkingSpots, vehicle, spawnDistance)
+local function GetSpawnLocationAndHeading(garage, garageType, parkingSpots, vehicle, spawnDistance)
     local location
     local heading
     local closestDistance = -1
@@ -529,13 +528,12 @@ function GetSpawnLocationAndHeading(garage, garageType, parkingSpots, vehicle, s
                     QBCore.Functions.Notify(Lang:t("error.too_far_away"), "error", 4500)
                     return
                 elseif closestDistance >= spawnDistance then
-                    QBCore.Functions.Notify(Lang:t("error.too_far_away"), "error", 4500)
-                    return
+                    return QBCore.Functions.Notify(Lang:t("error.too_far_away"), "error", 4500)
                 else
                     local veh, distance = QBCore.Functions.GetClosestVehicle(vector3(location.x,location.y, location.z))
                     if veh and distance <= 1.5 then
-                        QBCore.Functions.Notify(Lang:t("error.occupied"), "error", 4500)
-                    return end
+                        return QBCore.Functions.Notify(Lang:t("error.occupied"), "error", 4500)
+                    end
                     heading = location.w
                 end
             end
@@ -577,15 +575,14 @@ local function UpdateVehicleSpawnerSpawnedVehicle(veh, garage, heading, cb)
     end
 
     SetAsMissionEntity(veh)
-    SetVehicleEngineOn(veh, true, true)
+    SetVehicleEngineOn(veh, true, false, true)
     if cb then cb(veh) end
 end
 
 local function SpawnVehicleSpawnerVehicle(vehicleModel, location, heading, cb)
     local garage = Config.Garages[CurrentGarage]
     if Config.SpawnVehiclesServerside then
-        local netId = lib.callback.await('QBCore:Server:SpawnVehicle', false, vehicleModel, location, garage.WarpPlayerIntoVehicle or Config.WarpPlayerIntoVehicle and garage.WarpPlayerIntoVehicle == nil)
-        
+        local netId = lib.callback.await('QBCore:Server:CreateVehicle', false, vehicleModel, location, garage.WarpPlayerIntoVehicle or Config.WarpPlayerIntoVehicle and garage.WarpPlayerIntoVehicle == nil)
         local veh = NetToVeh(netId)
         UpdateVehicleSpawnerSpawnedVehicle(veh, garage, heading, cb)
     else
@@ -630,7 +627,7 @@ function UpdateSpawnedVehicle(spawnedVehicle, vehicleInfo, heading, garage, prop
     SetEntityHeading(spawnedVehicle, heading)
     SetAsMissionEntity(spawnedVehicle)
     if SpawnWithEngineRunning then
-        SetVehicleEngineOn(veh, true, true)
+        SetVehicleEngineOn(veh, true, false, true)
     end
 end
 
@@ -642,9 +639,8 @@ RegisterNetEvent("qb-garages:client:GarageMenu", function(data)
     local garage = data.garage
     local header = data.header
     local superCategory = data.superCategory
-    
-    local result = lib.callback.await("qb-garage:server:GetGarageVehicles", false, garageId, garagetype, superCategory)
 
+    local result = lib.callback.await("qb-garage:server:GetGarageVehicles", false, garageId, garagetype, superCategory)
     if result == nil then
         return QBCore.Functions.Notify(Lang:t("error.no_vehicles"), "error", 5000)
     end
@@ -687,7 +683,7 @@ RegisterNetEvent("qb-garages:client:GarageMenu", function(data)
                 args = {
                     vehicle = v,
                     vehicleModel = v.vehicle,
-                    type = type,
+                    type = garagetype,
                     garage = garage,
                 }
             }
@@ -705,7 +701,7 @@ RegisterNetEvent("qb-garages:client:GarageMenu", function(data)
                 args = {
                     vehicle = v,
                     vehicleModel = v.vehicle,
-                    type = type,
+                    type = garagetype,
                     garage = garage,
                     superCategory = superCategory,
                 }
@@ -796,7 +792,7 @@ RegisterNetEvent('qb-garages:client:TakeOutDepot', function(data)
     end
 
     local PlayerData = QBCore.Functions.GetPlayerData()
-    if PlayerData.money['cash'] <= vehicle.depotprice and PlayerData.money['bank'] <= vehicle.depotprice then
+    if PlayerData?.money['cash'] <= vehicle.depotprice and PlayerData?.money['bank'] <= vehicle.depotprice then
         return QBCore.Functions.Notify(Lang:t('error.not_enough'), "error", 5000)
     end
 
@@ -921,7 +917,7 @@ CreateThread(function()
                 onExit = function()
                     ResetCurrentGarage()
 					RemoveRadialOptions()
-                    exports['qb-core']:HideText()
+                    exports['qbx-core']:HideText()
                 end
             })
         end

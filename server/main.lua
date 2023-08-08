@@ -252,7 +252,7 @@ lib.callback.register("qb-garage:server:checkOwnership", function(source, plate,
         if not TableContains(Config.SharedJobGarages, garage) then
             shared = " AND citizenid = '"..pData.PlayerData.citizenid.."'"
         end
-        local result = MySQL.query('SELECT * FROM player_vehicles WHERE plate = ?'..shared, {plate})
+        local result = MySQL.query.await('SELECT * FROM player_vehicles WHERE plate = ?'..shared, {plate})
         return result?[1] and true or false
     end
 end)
